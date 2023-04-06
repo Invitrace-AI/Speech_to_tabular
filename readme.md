@@ -2,5 +2,5 @@
 
 ## Status
 
-Speech to Text ✔️
+Speech to Text ✔️ <br>
 Text to Tabular ❌
