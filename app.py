@@ -48,12 +48,12 @@ def online_import_model(model_name):
 def local_import_model(model_name):
     # newest
     local_model_path_dct = {
-            'model 1' : 'models/model1',
+            'model 1' : 'models/model1/',
             }
     
     local_model_path = local_model_path_dct[model_name]
-    processor = Wav2Vec2Processor.from_pretrained(local_model_path) # แปลงให้เป็น embedding (ใช้ convolution)
-    model = Wav2Vec2ForCTC.from_pretrained(local_model_path)
+    processor = Wav2Vec2Processor.from_pretrained(local_model_path, local_files_only=True) # แปลงให้เป็น embedding (ใช้ convolution)
+    model = Wav2Vec2ForCTC.from_pretrained(local_model_path, local_files_only=True)
     return processor,model
 
 selected = option_menu(
