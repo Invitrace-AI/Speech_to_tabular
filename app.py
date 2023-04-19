@@ -26,13 +26,22 @@ from utils.styles_util import inject_style
 # Setup page title
 st.set_page_config(page_title="Speech to Tabular App", page_icon=":studio_microphone:", layout="wide")
 
-all_files = f'models/model1'
-st.text('check')
-
 def initialize_session_state():
     if 'uploaded_file' not in st.session_state:
         st.session_state['uploaded_file'] = None 
         st.session_state['audio_source'] = None
+
+def online_import_model(model_name):
+    # newest
+    online_model_path_dct = {
+            'model 1' : 'airesearch/wav2vec2-large-xlsr-53-th',
+            'model 2' : 'wannaphong/wav2vec2-large-xlsr-53-th-cv8-newmm'
+            }
+    
+    online_model_path = online_model_path_dct[model_name]
+    processor = Wav2Vec2Processor.from_pretrained(online_model_path) # แปลงให้เป็น embedding (ใช้ convolution)
+    model = Wav2Vec2ForCTC.from_pretrained(online_model_path)
+    return processor,model
 
 # Setup model
 @st.cache_resource
@@ -44,12 +53,10 @@ def local_import_model(model_name):
             }
     
     local_model_path = local_model_path_dct[model_name]
-    st.text(local_model_path)
     processor = Wav2Vec2Processor.from_pretrained(local_model_path) # แปลงให้เป็น embedding (ใช้ convolution)
     model = Wav2Vec2ForCTC.from_pretrained(local_model_path)
     return processor,model
 
-st.text('checkkk')
 selected = option_menu(
         menu_title= None , 
         options=['About This App','Prediction'],
@@ -70,7 +77,8 @@ if selected == "Prediction":
         st.selectbox("Choose a model",options = ("model 2", "model 1"), key='model_name')
         st.selectbox("Choose a way to input your sound",options = ("file uploader", "recorder"), key='input_option')
         st.checkbox("Correct the output (Beta)",key='correct_text')
-        processor, model = local_import_model(st.session_state['model_name'])
+        processor, model = online_import_model(st.session_state['model_name'])
+        #processor, model = local_import_model(st.session_state['model_name'])
         st.session_state['processor'] = processor
         st.session_state['model'] = model
 
