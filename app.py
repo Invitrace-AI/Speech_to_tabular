@@ -19,7 +19,8 @@ import sys
 import time
 
 # import modules
-from utils.process_utils import speech_file_to_array_fn, predict, convert_mp3_to_wav, correct_by_gpt, text_to_tabular
+from utils.process_utils import speech_file_to_array_fn, predict, convert_mp3_to_wav, correct_by_gpt
+from utils.process_utils import text_to_tabular, split_long_audio, empty_folder
 from utils.authenticate_utils import authenticate
 from utils.styles_util import inject_style
 
@@ -130,26 +131,33 @@ if selected == "Prediction":
                         with open("samples/sample.wav", "wb") as f:
                             f.write(uploaded_file.getvalue())
 
+            with st.spinner('Splitting video ..'):
+                n_audio_file = split_long_audio("samples/sample.wav")
 
             with st.spinner('Transcribing the audio...'):
                 # Transcribe
                 processor = st.session_state['processor']
                 model = st.session_state['model']
+                final_prediction_all = ''
+                for i in range(n_audio_file):
+                    speech, _, _ = speech_file_to_array_fn(f'temp_folder/sample_{i}.wav')
+                    prediction = predict(speech,processor,model)
+                    final_prediction = prediction[0].replace(" ", "")
+                    final_prediction_all += final_prediction
 
-                speech, _, _ = speech_file_to_array_fn('samples/sample.wav')
-                prediction = predict(speech,processor,model)
-                
                 # Display the audio 
                 # st.text(f"Token Prediction : {prediction}")
                 
                 # Full prediction
-                final_prediction = prediction[0].replace(" ", "")
-                st.text(f"Final Transcription : {final_prediction}")
+                #final_prediction = prediction[0].replace(" ", "")
+                st.text(f"Final Transcription : {final_prediction_all}")
+
+            empty_folder('temp_folder')
 
             if st.session_state['correct_text']:
                 with st.spinner('Correcting the text ..'):
                     try:
-                        correct_prediction = correct_by_gpt(final_prediction)
+                        correct_prediction = correct_by_gpt(final_prediction_all)
                         st.text(f"Corrected Final Transcription : {correct_prediction}")
                     except RateLimitError:
                         st.warning("Not available now, Try again in a few second")

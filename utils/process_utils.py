@@ -4,6 +4,10 @@ import subprocess
 import os
 from pydub import AudioSegment
 import openai
+import math
+import streamlit as st
+import os, shutil
+
 
 def speech_file_to_array_fn(audio_path,truth = None, resampling_to=16000):
     
@@ -26,6 +30,9 @@ def predict(speech,processor,model):
     #print("Reference:", test_dataset["sentence"][:2])
     return prediction
 
+def convert_min_to_ms(min):
+    return 60 * 1000 * min
+
 def convert_mp3_to_wav(mp3_audio):
     with open("samples/sample.mp3", "wb") as f:
         f.write(mp3_audio.getvalue())
@@ -34,6 +41,29 @@ def convert_mp3_to_wav(mp3_audio):
 
     os.remove("samples/sample.mp3")
     #subprocess.call(['ffmpeg', '-i', 'samples/example.mp3','samples/record_0.wav'])
+
+def split_long_audio(wav_file_name):
+    audio = AudioSegment.from_mp3(wav_file_name)
+    duration_ms = len(audio) 
+    first_vid_duration = min(duration_ms, convert_min_to_ms(1))
+    extract = audio[:first_vid_duration]
+    extract.export("temp_folder/sample_0.wav", format="wav")
+
+    if duration_ms > convert_min_to_ms(1):
+        n_audio_file = math.ceil( duration_ms / (60 * 1000) ) 
+        for audio_file in range(1, n_audio_file ):
+            
+            try:
+                extract = audio[convert_min_to_ms(audio_file) : convert_min_to_ms(audio_file+1)]
+            
+            except IndexError:
+                extract = audio[convert_min_to_ms(audio_file) :]
+
+            extract.export(f"temp_folder/sample_{audio_file}.wav", format="wav")
+        return n_audio_file
+
+    else:
+        return 1 
 
 def correct_by_gpt(final_prediction):
 
@@ -84,3 +114,7 @@ def text_to_tabular(transcription,situation):
     
     return tabular_data
 
+def empty_folder(folder_path):
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+        os.remove(file_path)
