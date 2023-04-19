@@ -31,6 +31,7 @@ def initialize_session_state():
         st.session_state['uploaded_file'] = None 
         st.session_state['audio_source'] = None
 
+@st.cache_resource
 def online_import_model(model_name):
     # newest
     online_model_path_dct = {
