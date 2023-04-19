@@ -26,8 +26,9 @@ from utils.styles_util import inject_style
 # Setup page title
 st.set_page_config(page_title="Speech to Tabular App", page_icon=":studio_microphone:", layout="wide")
 
-all_files = f'{os.getcwd()}/models/model1'
+all_files = f'models/model1'
 st.text(os.listdir(all_files))
+st.text('check')
 
 def initialize_session_state():
     if 'uploaded_file' not in st.session_state:
@@ -46,7 +47,7 @@ def local_import_model(model_name):
     local_model_path = local_model_path_dct[model_name]
     st.text(local_model_path)
     processor = Wav2Vec2Processor.from_pretrained(local_model_path) # แปลงให้เป็น embedding (ใช้ convolution)
-    #model = Wav2Vec2ForCTC.from_pretrained(local_model_path)
+    model = Wav2Vec2ForCTC.from_pretrained(local_model_path)
     return processor,model
 
 selected = option_menu(
