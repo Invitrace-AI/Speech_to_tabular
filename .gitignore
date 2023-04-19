@@ -12,4 +12,4 @@ samples/record_7.wav
 __pycache__/
 
 # Unused for deploy
-models/model2
+models/model_unused

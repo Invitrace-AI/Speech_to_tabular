@@ -1,1 +1,0 @@
-{"unk_token": "[UNK]", "bos_token": "<s>", "eos_token": "</s>", "pad_token": "[PAD]", "do_lower_case": false, "word_delimiter_token": "|", "replace_word_delimiter_char": " ", "special_tokens_map_file": null, "name_or_path": "./thai-asr-cv8", "processor_class": "Wav2Vec2ProcessorWithLM"}
