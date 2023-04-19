@@ -27,7 +27,6 @@ from utils.styles_util import inject_style
 st.set_page_config(page_title="Speech to Tabular App", page_icon=":studio_microphone:", layout="wide")
 
 all_files = f'models/model1'
-st.text(os.listdir(all_files))
 st.text('check')
 
 def initialize_session_state():
@@ -50,6 +49,7 @@ def local_import_model(model_name):
     model = Wav2Vec2ForCTC.from_pretrained(local_model_path)
     return processor,model
 
+st.text('checkkk')
 selected = option_menu(
         menu_title= None , 
         options=['About This App','Prediction'],
