@@ -74,7 +74,7 @@ if selected == "Prediction":
         st.header("Custom setting :gear:")
         st.selectbox("Choose a situation",options = ("monologue (doctor)", "dialogue (doctor-patient)"), key='situation')
         #st.selectbox("Choose a model",options = ("model 2", "model 1"), key='model_name')
-        st.selectbox("Choose a model",options = ("model 1"), key='model_name')
+        st.session_state['model_name'] = 'model 1'
         st.selectbox("Choose a way to input your sound",options = ("file uploader", "recorder"), key='input_option')
         st.checkbox("Correct the output (Beta)",key='correct_text')
         processor, model = online_import_model(st.session_state['model_name'])
