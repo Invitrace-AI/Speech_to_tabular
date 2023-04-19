@@ -39,8 +39,8 @@ def initialize_session_state():
 def local_import_model(model_name):
     # newest
     local_model_path_dct = {
-            'model 1' : f'{os.getcwd()}/models/model1',
-            'model 2' : f'{os.getcwd()}/models/model2'
+            'model 1' : 'models/model1',
+            'model 2' : 'models/model2'
             }
     
     local_model_path = local_model_path_dct[model_name]
