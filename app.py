@@ -77,8 +77,8 @@ if selected == "Prediction":
         st.session_state['model_name'] = 'model 1'
         st.selectbox("Choose a way to input your sound",options = ("file uploader", "recorder"), key='input_option')
         st.checkbox("Correct the output (Beta)",key='correct_text')
-        #processor, model = online_import_model(st.session_state['model_name'])
-        processor, model = local_import_model(st.session_state['model_name'])
+        processor, model = online_import_model(st.session_state['model_name'])
+        #processor, model = local_import_model(st.session_state['model_name'])
         st.session_state['processor'] = processor
         st.session_state['model'] = model
 
