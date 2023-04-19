@@ -46,7 +46,7 @@ def local_import_model(model_name):
     local_model_path = local_model_path_dct[model_name]
     st.text(local_model_path)
     processor = Wav2Vec2Processor.from_pretrained(local_model_path) # แปลงให้เป็น embedding (ใช้ convolution)
-    model = Wav2Vec2ForCTC.from_pretrained(local_model_path)
+    #model = Wav2Vec2ForCTC.from_pretrained(local_model_path)
     return processor,model
 
 selected = option_menu(
