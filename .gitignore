@@ -10,3 +10,6 @@ samples/record_7.wav
 
 # Optimize
 __pycache__/
+
+# Unused for deploy
+models/model2
