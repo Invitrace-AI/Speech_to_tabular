@@ -7,7 +7,8 @@ import openai
 import math
 import streamlit as st
 import os, shutil
-
+import noisereduce as nr
+from scipy.io import wavfile
 
 def speech_file_to_array_fn(audio_path,truth = None, resampling_to=16000):
     
@@ -32,6 +33,12 @@ def predict(speech,processor,model):
 
 def convert_min_to_ms(min):
     return 60 * 1000 * min
+
+def denoise_audio(wav_file_name):
+    rate, data = wavfile.read(wav_file_name)
+    # perform noise reduction
+    reduced_noise = nr.reduce_noise(y=data, sr=rate)
+    wavfile.write(wav_file_name, rate, reduced_noise)
 
 def convert_mp3_to_wav(mp3_audio):
     with open("samples/sample.mp3", "wb") as f:
@@ -74,7 +81,7 @@ def correct_by_gpt(final_prediction):
    
     response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            temperature = 0.01,
+            temperature = 0.00,
             messages=[
                     {"role": "system", "content": role},
                     {"role": "user", "content": f'correct this without verbose : {final_prediction}'},
@@ -101,10 +108,10 @@ def text_to_tabular(transcription,situation):
 
     response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            temperature = 0.01,
+            temperature = 0.0,
             messages=[
                     {"role": "system", "content": role},
-                    {"role": "user", "content": f'Please extract the following text into table : {transcription}'},
+                    {"role": "user", "content": f'Please extract the following text into table format : {transcription}'},
                 ])
     
 

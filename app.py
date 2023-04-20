@@ -20,7 +20,7 @@ import time
 
 # import modules
 from utils.process_utils import speech_file_to_array_fn, predict, convert_mp3_to_wav, correct_by_gpt
-from utils.process_utils import text_to_tabular, split_long_audio, empty_folder
+from utils.process_utils import text_to_tabular, split_long_audio, empty_folder, denoise_audio
 from utils.authenticate_utils import authenticate
 from utils.styles_util import inject_style
 
@@ -77,7 +77,8 @@ if selected == "Prediction":
         #st.selectbox("Choose a model",options = ("model 2", "model 1"), key='model_name')
         st.session_state['model_name'] = 'model 1'
         st.selectbox("Choose a way to input your sound",options = ("file uploader", "recorder"), key='input_option')
-        st.checkbox("Correct the output (Beta)",key='correct_text')
+        st.checkbox("Correct the output (Beta)",key='correct_text',value = True)
+        st.checkbox("Denoise the audio (Beta)",key='denoise_audio',value = False,disabled=True)
         processor, model = online_import_model(st.session_state['model_name'])
         #processor, model = local_import_model(st.session_state['model_name'])
         st.session_state['processor'] = processor
@@ -90,7 +91,6 @@ if selected == "Prediction":
     uploaded_file = None
     audio_source = None
     with st.container():
-        st.subheader('Invitrace Assistant Version 1')
         st.subheader("Step 1 : Input your sound")
 
         if st.session_state['input_option'] == 'file uploader' :
@@ -130,8 +130,13 @@ if selected == "Prediction":
                     else:
                         with open("samples/sample.wav", "wb") as f:
                             f.write(uploaded_file.getvalue())
+            
+            with st.spinner('Denoise audio ..'):
+                if st.session_state['denoise_audio']:
+                    denoise_audio("samples/sample.wav")
+                    st.audio("samples/sample.wav")
 
-            with st.spinner('Splitting video ..'):
+            with st.spinner('Splitting Audio ..'):
                 n_audio_file = split_long_audio("samples/sample.wav")
 
             with st.spinner('Transcribing the audio...'):
@@ -140,7 +145,12 @@ if selected == "Prediction":
                 model = st.session_state['model']
                 final_prediction_all = ''
                 for i in range(n_audio_file):
-                    speech, _, _ = speech_file_to_array_fn(f'temp_folder/sample_{i}.wav')
+                    try:
+                        speech, _, _ = speech_file_to_array_fn(f'temp_folder/sample_{i}.wav')
+                    except RuntimeError:
+                        st.error("Try recording again due to an empty audio")
+                        st.stop()
+                    
                     prediction = predict(speech,processor,model)
                     final_prediction = prediction[0].replace(" ", "")
                     final_prediction_all += final_prediction
@@ -150,15 +160,20 @@ if selected == "Prediction":
                 
                 # Full prediction
                 #final_prediction = prediction[0].replace(" ", "")
-                st.text(f"Final Transcription : {final_prediction_all}")
+                st.subheader(f':pencil: Final Transcription :')
+                st.write(final_prediction_all)
 
             empty_folder('temp_folder')
+
+            
 
             if st.session_state['correct_text']:
                 with st.spinner('Correcting the text ..'):
                     try:
                         correct_prediction = correct_by_gpt(final_prediction_all)
-                        st.text(f"Corrected Final Transcription : {correct_prediction}")
+                        st.subheader(f"🔎 Corrected Final Transcription :")
+                        st.write(correct_prediction)
+                        final_prediction  = correct_prediction
                     except RateLimitError:
                         st.warning("Not available now, Try again in a few second")
 
@@ -166,8 +181,8 @@ if selected == "Prediction":
             situation = st.session_state['situation']
             with st.spinner(f'Extracting the transcription into tables for {situation}'):
                 final_table = text_to_tabular(final_prediction, situation)
-                st.text('Final table :')
-                st.markdown(f"{final_table}")
+                st.subheader(':potable_water: Final Extraction :')
+                st.write(final_table)
 
 
 elif selected == "About This App":
@@ -206,3 +221,5 @@ elif selected == "About This App":
         - Record on the low noise environment
         - Speak Clearly
         """)
+
+# เพิ่ม column Diagnosis , เปลี่ยนเป็น html เพื่อให้ข้อความใน table ยาวขึ้น
