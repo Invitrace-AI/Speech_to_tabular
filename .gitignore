@@ -1,0 +1,15 @@
+# Secret samples
+samples/cut_itele_sample.mp3
+samples/itele_sample.mp3
+samples/record_1.mp3
+samples/record_2.wav
+samples/record_7.wav
+
+# Secret key
+.env
+
+# Optimize
+__pycache__/
+
+# Unused for deploy
+models/model_unused
