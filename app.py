@@ -184,7 +184,11 @@ if selected == "Prediction":
             situation = st.session_state['situation']
             output_format = st.session_state['output_format']
             with st.spinner(f'Extracting the transcription into {output_format} for {situation}'):
-                final_table = text_to_tabular(final_prediction, situation, output_format)
+                try:
+                    final_table = text_to_tabular(final_prediction, situation, output_format)
+                except RuntimeError:
+                    st.warning("Not available now, Try again in a few second")
+                    st.stop()
                 st.subheader(':potable_water: Final Extraction :')
                 st.write(final_table)
 
